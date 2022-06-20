@@ -7,16 +7,19 @@ import (
 )
 
 // Proto is a proto generator.
+// proto 生成器
+// eg : kratos proto add helloworld/v1/helloworld.proto
 type Proto struct {
-	Name        string
-	Path        string
-	Service     string
-	Package     string
-	GoPackage   string
-	JavaPackage string
+	Name        string  // helloworld.proto
+	Path        string  // helloworld/v1
+	Service     string  // Helloworld
+	Package     string  // helloworld.v1
+	GoPackage   string  // /helloworld/v1;v1
+	JavaPackage string  // helloworld.v1
 }
 
 // Generate generate a proto template.
+// 生成 proto 模板
 func (p *Proto) Generate() error {
 	body, err := p.execute()
 	if err != nil {

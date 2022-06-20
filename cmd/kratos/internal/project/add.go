@@ -15,9 +15,15 @@ var repoAddIgnores = []string{
 	".git", ".github", "api", "README.md", "LICENSE", "go.mod", "go.sum", "third_party",
 }
 
+// dir    : /home/tian/workspace/golang/src/kratos
+// layout : https://github.com/go-kratos/kratos-layout.git
+// branch :
+// mod    :
 func (p *Project) Add(ctx context.Context, dir string, layout string, branch string, mod string) error {
+	// to : /home/tian/workspace/golang/src/kratos/helloworld
 	to := path.Join(dir, p.Path)
 
+	// 如果 to 目录(执行 kratos new 是所在目录 + 项目路径)已经存在,可以选择覆盖(先删除)
 	if _, err := os.Stat(to); !os.IsNotExist(err) {
 		fmt.Printf("🚫 %s already exists\n", p.Name)
 		override := false
@@ -37,6 +43,7 @@ func (p *Project) Add(ctx context.Context, dir string, layout string, branch str
 
 	fmt.Printf("🚀 Add service %s, layout repo is %s, please wait a moment.\n\n", p.Name, layout)
 
+	// 创建一个 git 仓库管理者
 	repo := base.NewRepo(layout, branch)
 
 	if err := repo.CopyToV2(ctx, to, path.Join(mod, p.Path), repoAddIgnores, []string{path.Join(p.Path, "api"), "api"}); err != nil {

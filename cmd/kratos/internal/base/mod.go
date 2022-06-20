@@ -12,11 +12,17 @@ import (
 )
 
 // ModulePath returns go module path.
+// 返回 go module 路径
+// eg： module test/rpc/client （go.mod 文件，第一行 module 关键字）
+//	返回 test/rpc/client
 func ModulePath(filename string) (string, error) {
+	// ReadFile 读取指定文件并返回内容。
 	modBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return "", err
 	}
+
+	// 返回 go.mod 文件，第一行 module 关键字后的 字符串
 	return modfile.ModulePath(modBytes), nil
 }
 

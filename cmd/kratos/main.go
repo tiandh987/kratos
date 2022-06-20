@@ -20,10 +20,27 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	// kratos new [flags]
+	//	创建项目
+	// 		-r  --repo-url (默认: https://gitee.com/go-kratos/kratos-layout.git)
+	//		-b  --branch   (默认: @main)
+	//		-t  --timeout  (默认: 60s)
+	//			--nomod
+	// eg : kratos new helloworld -r https://gitee.com/go-kratos/kratos-layout.git
 	rootCmd.AddCommand(project.CmdNew)
+
+	// kratos proto [flags]
+	//		未实现什么功能
+	// kratos proto [command]
+	// 		kratos proto add [flags]
+	// 		kratos proto client [flags]
+	// 		kratos proto server [flags]
 	rootCmd.AddCommand(proto.CmdProto)
 	rootCmd.AddCommand(upgrade.CmdUpgrade)
 	rootCmd.AddCommand(change.CmdChange)
+
+	// kratos run [flags]
+	//	运行项目
 	rootCmd.AddCommand(run.CmdRun)
 }
 

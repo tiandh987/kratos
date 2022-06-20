@@ -21,18 +21,26 @@ var CmdRun = &cobra.Command{
 }
 
 // Run run project.
+// 在当前工作目录下寻找 cmd/*
+// 最终运行 go run .
 func Run(cmd *cobra.Command, args []string) {
+	// eg: kratos run app/user
 	var dir string
 	if len(args) > 0 {
 		dir = args[0]
 	}
+
+	// 执行 kratos 命令的当前路径
 	base, err := os.Getwd()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
 		return
 	}
+
+	// eg: kratos run
 	if dir == "" {
 		// find the directory containing the cmd/*
+		// 在当前工作路径下, 寻找 cmd/*
 		cmdPath, err := findCMD(base)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", err)
@@ -40,6 +48,7 @@ func Run(cmd *cobra.Command, args []string) {
 		}
 		switch len(cmdPath) {
 		case 0:
+			// 当前工作目录下, 未发现 cmd 目录
 			fmt.Fprintf(os.Stderr, "\033[31mERROR: %s\033[m\n", "The cmd directory cannot be found in the current directory")
 			return
 		case 1:
@@ -81,6 +90,7 @@ func findCMD(base string) (map[string]string, error) {
 	if !strings.HasSuffix(wd, "/") {
 		wd += "/"
 	}
+
 	var root bool
 	next := func(dir string) (map[string]string, error) {
 		cmdPath := make(map[string]string)
@@ -106,6 +116,7 @@ func findCMD(base string) (map[string]string, error) {
 		})
 		return cmdPath, err
 	}
+
 	for i := 0; i < 5; i++ {
 		tmp := base
 		cmd, err := next(tmp)
