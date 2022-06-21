@@ -45,6 +45,7 @@ type config struct {
 }
 
 // New new a config with options.
+// 使用 opts 创建一个配置
 func New(opts ...Option) Config {
 	o := options{
 		decoder:  defaultDecoder,
@@ -93,15 +94,20 @@ func (c *config) watch(w Watcher) {
 	}
 }
 
+// 从配置源加载配置
 func (c *config) Load() error {
+	// 遍历配置源
 	for _, src := range c.opts.sources {
+		// 不同的配置源,调用各自的 Load 方法, 返回 KeyValue 类型切片
 		kvs, err := src.Load()
 		if err != nil {
 			return err
 		}
+
 		for _, v := range kvs {
 			log.Debugf("config loaded: %s format: %s", v.Key, v.Format)
 		}
+
 		if err = c.reader.Merge(kvs...); err != nil {
 			log.Errorf("failed to merge config source: %v", err)
 			return err
@@ -121,6 +127,7 @@ func (c *config) Load() error {
 	return nil
 }
 
+// config 实例的 .Value 方法，可以单独获取某个字段的内容。
 func (c *config) Value(key string) Value {
 	if v, ok := c.cached.Load(key); ok {
 		return v.(Value)
@@ -132,6 +139,7 @@ func (c *config) Value(key string) Value {
 	return &errValue{err: ErrNotFound}
 }
 
+// 读取配置文件的内容到结构体中，这种方式适用于完整获取整个配置文件的内容。
 func (c *config) Scan(v interface{}) error {
 	data, err := c.reader.Source()
 	if err != nil {
@@ -140,6 +148,7 @@ func (c *config) Scan(v interface{}) error {
 	return unmarshalJSON(data, v)
 }
 
+// 通过.Watch方法，可以监听配置中某个字段的变更，在本地或远端的配置中心有配置文件变更时，执行回调函数进行自定义的处理
 func (c *config) Watch(key string, o Observer) error {
 	if v := c.Value(key); v.Load() == nil {
 		return ErrNotFound

@@ -11,6 +11,9 @@ import (
 
 var _ config.Source = (*file)(nil)
 
+// 使用file，即从本地文件加载：
+// 	这里的 path 就是配置文件的路径，
+//	这里也可以填写一个目录名，这样会将整个目录中的所有文件进行解析加载，合并到同一个 map 中。
 type file struct {
 	path string
 }

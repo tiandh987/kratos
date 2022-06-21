@@ -16,6 +16,7 @@ type Option func(o *options)
 
 // options is an application options.
 type options struct {
+	// 一个 uuid 字符串
 	id        string
 	name      string
 	version   string
@@ -23,11 +24,15 @@ type options struct {
 	endpoints []*url.URL
 
 	ctx  context.Context
+	// 监听信号
+	// syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT
 	sigs []os.Signal
 
 	logger           log.Logger
 	registrar        registry.Registrar
+	// 默认 10s
 	registrarTimeout time.Duration
+	// 默认 10s
 	stopTimeout      time.Duration
 	servers          []transport.Server
 }

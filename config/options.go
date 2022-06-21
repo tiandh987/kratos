@@ -10,21 +10,28 @@ import (
 )
 
 // Decoder is config decoder.
+// Decoder用于将配置文件内容用特定的反序列化方法解析出来
 type Decoder func(*KeyValue, map[string]interface{}) error
 
 // Resolver resolve placeholder in config.
+// Resolver用于对解析完毕后的map结构进行再次处理
 type Resolver func(map[string]interface{}) error
 
 // Option is config option.
+// 配置文件选项
 type Option func(*options)
 
 type options struct {
+	// 配置文件源
 	sources  []Source
+	// 配置文件解码器
 	decoder  Decoder
+	// 配置文件解析器
 	resolver Resolver
 }
 
 // WithSource with config source.
+// 设置配置源
 func WithSource(s ...Source) Option {
 	return func(o *options) {
 		o.sources = s
@@ -57,14 +64,17 @@ func WithLogger(l log.Logger) Option {
 
 // defaultDecoder decode config from source KeyValue
 // to target map[string]interface{} using src.Format codec.
+// 默认配置文件解码器, 使用 src.Format 解码器将配置源的 KeyValue 解析为 map[string]interface{}
 func defaultDecoder(src *KeyValue, target map[string]interface{}) error {
 	if src.Format == "" {
 		// expand key "aaa.bbb" into map[aaa]map[bbb]interface{}
+		// 默认 key 使用 . 进行层级分级
 		keys := strings.Split(src.Key, ".")
 		for i, k := range keys {
 			if i == len(keys)-1 {
 				target[k] = src.Value
 			} else {
+				// 这个写法没看懂, 调试看一下
 				sub := make(map[string]interface{})
 				target[k] = sub
 				target = sub
@@ -72,9 +82,11 @@ func defaultDecoder(src *KeyValue, target map[string]interface{}) error {
 		}
 		return nil
 	}
+
 	if codec := encoding.GetCodec(src.Format); codec != nil {
 		return codec.Unmarshal(src.Value, &target)
 	}
+
 	return fmt.Errorf("unsupported key: %s format: %s", src.Key, src.Format)
 }
 
@@ -94,7 +106,9 @@ func defaultResolver(input map[string]interface{}) error {
 
 	var resolve func(map[string]interface{}) error
 	resolve = func(sub map[string]interface{}) error {
+		// 遍历 map
 		for k, v := range sub {
+			// 断言 value 的类型
 			switch vt := v.(type) {
 			case string:
 				sub[k] = expand(vt, mapper)

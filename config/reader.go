@@ -16,6 +16,7 @@ import (
 )
 
 // Reader is config reader.
+// 配置文件读取器
 type Reader interface {
 	Merge(...*KeyValue) error
 	Value(string) (Value, bool)

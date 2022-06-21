@@ -7,6 +7,8 @@ import (
 	"github.com/go-kratos/kratos/v2/config"
 )
 
+// 配置环境变量配置源env
+// prefixs 为环境变量前缀
 type env struct {
 	prefixs []string
 }
