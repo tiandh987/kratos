@@ -21,14 +21,18 @@ var CmdServer = &cobra.Command{
 var targetDir string
 
 func init() {
+	// -t  --target-dir  指定生成目录
+	// 默认: internal/service
 	CmdServer.Flags().StringVarP(&targetDir, "target-dir", "t", "internal/service", "generate target directory")
 }
 
 func run(cmd *cobra.Command, args []string) {
 	if len(args) == 0 {
+		// 必须指定 proto 文件
 		fmt.Fprintln(os.Stderr, "Please specify the proto file. Example: kratos proto server api/xxx.proto")
 		return
 	}
+
 	reader, err := os.Open(args[0])
 	if err != nil {
 		log.Fatal(err)
@@ -45,6 +49,7 @@ func run(cmd *cobra.Command, args []string) {
 		pkg string
 		res []*Service
 	)
+
 	proto.Walk(definition,
 		proto.WithOption(func(o *proto.Option) {
 			if o.Name == "go_package" {

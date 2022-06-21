@@ -32,15 +32,25 @@ func init() {
 
 func run(cmd *cobra.Command, args []string) {
 	if len(args) == 0 {
+		// 执行 kratos proto client 命令, 必须指定 proto 文件
 		fmt.Println("Please enter the proto file or directory")
 		return
 	}
+
 	var (
 		err   error
 		proto = strings.TrimSpace(args[0])
 	)
+
+	// 查看  "protoc-gen-go",
+	//		"protoc-gen-go-grpc",
+	//		"protoc-gen-go-http",
+	//		"protoc-gen-go-errors",
+	//		"protoc-gen-openapi"
+	//  是否已经安装。
 	if err = look("protoc-gen-go", "protoc-gen-go-grpc", "protoc-gen-go-http", "protoc-gen-go-errors", "protoc-gen-openapi"); err != nil {
 		// update the kratos plugins
+		// 若没有安装，则执行 kratos upgrade 进行更新
 		cmd := exec.Command("kratos", "upgrade")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -49,9 +59,13 @@ func run(cmd *cobra.Command, args []string) {
 			return
 		}
 	}
+
+	// 判断提供的是否为 .proto 文件
 	if strings.HasSuffix(proto, ".proto") {
+		// 基于 .proto 文件生成客户端代码
 		err = generate(proto, args)
 	} else {
+		// 给定的是目录,对目录下所有 proto 文件生成客户端代码
 		err = walk(proto, args)
 	}
 	if err != nil {
@@ -61,6 +75,8 @@ func run(cmd *cobra.Command, args []string) {
 
 func look(name ...string) error {
 	for _, n := range name {
+		// LookPath 在 PATH 环境变量命名的目录中搜索可执行的命名文件。
+		// 如果文件包含斜杠，则直接尝试，不参考 PATH。
 		if _, err := exec.LookPath(n); err != nil {
 			return err
 		}
@@ -81,6 +97,7 @@ func walk(dir string, args []string) error {
 }
 
 // generate is used to execute the generate command for the specified proto file
+// 对指定的 proto 文件执行 generate 命令
 func generate(proto string, args []string) error {
 	input := []string{
 		"--proto_path=.",
@@ -89,7 +106,9 @@ func generate(proto string, args []string) error {
 		input = append(input, "--proto_path="+protoPath)
 	}
 	inputExt := []string{
+		// base.KratosMod() : $GOPATH/pkg/mod/github.com/go-kratos/kratos/v2@v2.3.1
 		"--proto_path=" + base.KratosMod(),
+		// $GOPATH/pkg/mod/github.com/go-kratos/kratos/v2@v2.3.1/third_party
 		"--proto_path=" + filepath.Join(base.KratosMod(), "third_party"),
 		"--go_out=paths=source_relative:.",
 		"--go-grpc_out=paths=source_relative:.",

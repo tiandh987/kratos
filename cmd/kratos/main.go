@@ -36,7 +36,11 @@ func init() {
 	// 		kratos proto client [flags]
 	// 		kratos proto server [flags]
 	rootCmd.AddCommand(proto.CmdProto)
+
+	// kratos upgrade
 	rootCmd.AddCommand(upgrade.CmdUpgrade)
+
+	// kratos changelog
 	rootCmd.AddCommand(change.CmdChange)
 
 	// kratos run [flags]
